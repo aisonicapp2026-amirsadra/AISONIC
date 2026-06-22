@@ -22,6 +22,17 @@ justify-content: center;
 align-items: center;
 cursor: none;
 }
+#bgCanvas{
+    position:fixed;
+    inset:0;
+
+    width:100%;
+    height:100%;
+
+    z-index:-999;
+
+    pointer-events:none;
+}
 
 /* ======================
    MOUSE (ALWAYS ON TOP FIX)
@@ -518,13 +529,13 @@ box-shadow:
 
 /* ULTRA GLASS PANELS */
 .menu-box{
-backdrop-filter:blur(22px)!important;
+backdrop-filter:blur(1px)!important;
 border:1px solid rgba(255,255,255,.18)!important;
 box-shadow:0 0 25px rgba(255,79,216,.5),0 0 60px rgba(122,92,255,.35)!important;
 }
 .input-card{
 background:rgba(255,255,255,.05)!important;
-backdrop-filter:blur(18px)!important;
+backdrop-filter:blur(1px)!important;
 border:1px solid rgba(255,255,255,.18)!important;
 box-shadow:0 0 35px rgba(255,79,216,.35),0 0 80px rgba(122,92,255,.15)!important;
 }
@@ -537,7 +548,7 @@ width:min(300px,85vw);
 padding:30px;
 border-radius:24px;
 background:rgba(255,255,255,.05);
-backdrop-filter:blur(18px);
+backdrop-filter:blur(1px);
 border:1px solid rgba(255,255,255,.15);
 box-shadow:0 0 30px rgba(255,79,216,.25),0 0 60px rgba(122,92,255,.18);
 display:flex;
@@ -548,7 +559,7 @@ align-items:center;
 .live-status{
 color:#00ff55;
 font-family:monospace;
-text-shadow:0 0 10px #00ff55;
+text-shadow:0 0 10px #04c544;
 animation:blink 1.4s infinite;
 }
 @keyframes blink{50%{opacity:.45;}}
@@ -558,7 +569,7 @@ background:linear-gradient(90deg,#ff4fd8,#00ffd5);
 -webkit-background-clip:text;
 -webkit-text-fill-color:transparent;
 }
-.visualizer{display:flex;gap:4px;height:34px;align-items:flex-end}
+.visualizer{display:flex;gap:8px;height:34px;align-items:flex-end}
 .visualizer span{
 width:5px;
 border-radius:10px;
@@ -570,6 +581,8 @@ animation:eq 1s infinite ease-in-out;
 </style>
 </head>
 
+
+<canvas id="bgCanvas"></canvas>
 <body>
 
 <div class="glow" id="glow"></div>
@@ -630,6 +643,96 @@ animation:eq 1s infinite ease-in-out;
 
 
 </div>
+<script>
+
+const canvas = document.getElementById("bgCanvas");
+const ctx = canvas.getContext("2d");
+
+
+function resize(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+resize();
+window.addEventListener("resize", resize);
+
+const colors = [
+"#00E5FF",
+"#00FFD5",
+"#7A5CFF",
+"#FF4FD8",
+"#66FF99"
+];
+
+const particles = [];
+
+for(let i=0;i<555;i++){
+
+    particles.push({
+
+        x:Math.random()*canvas.width,
+        y:Math.random()*canvas.height,
+
+        vx:(Math.random()-0.5)*0.2,
+        vy:(Math.random()-0.5)*0.2,
+
+        color:colors[
+            Math.floor(Math.random()*colors.length)
+        ],
+
+        size:Math.random()*2
+
+    });
+
+}
+
+function animate(){
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+    for(const p of particles){
+
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if(p.x < 0) p.x = canvas.width;
+        if(p.x > canvas.width) p.x = 0;
+
+        if(p.y < 0) p.y = canvas.height;
+        if(p.y > canvas.height) p.y = 0;
+
+        ctx.beginPath();
+
+        ctx.fillStyle = p.color;
+
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = p.color;
+
+        ctx.arc(
+            p.x,
+            p.y,
+            p.size,
+            0,
+            Math.PI*2
+        );
+
+        ctx.fill();
+
+    }
+
+    requestAnimationFrame(animate);
+
+}
+
+animate();
+
+</script>
 
 <script>
 document.addEventListener("mousemove", (e) => {
